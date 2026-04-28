@@ -8,6 +8,8 @@ type Props = {
 };
 
 export const NewMovie: React.FC<Props> = ({ onAdd }) => {
+  const [formKey, setFormKey] = useState(0);
+
   const [title, setTitle] = useState('');
   const [hasTitleError, setHasTitleError] = useState(false);
 
@@ -56,6 +58,20 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
       '(?:[,.!/\\\\\\w]*))?)' +
       '$',
   );
+
+  const trueTest = () => {
+    if (
+      !title.trim() ||
+      !pattern.test(imgUrl) ||
+      !pattern.test(imdbUrl) ||
+      !imdbId.trim()
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
   const handSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -64,12 +80,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
     setHasImdbUrlError(!pattern.test(imdbUrl));
     setHasImdbIdError(!imdbId.trim());
 
-    if (
-      !title.trim() ||
-      !pattern.test(imgUrl) ||
-      !pattern.test(imdbUrl) ||
-      !imdbId.trim()
-    ) {
+    if (trueTest()) {
       return;
     }
 
@@ -80,7 +91,12 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
       imdbUrl,
       imdbId,
     });
+    setFormKey(prevKey => prevKey + 1);
 
+    setHasTitleError(false);
+    setHasImgUrlError(false);
+    setHasImdbUrlError(false);
+    setHasImdbIdError(false);
     setTitle('');
     setDescription('');
     setImgUrl('');
@@ -89,7 +105,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
   };
 
   return (
-    <form className="NewMovie" onSubmit={handSubmit}>
+    <form className="NewMovie" onSubmit={handSubmit} key={formKey}>
       <h2 className="title">Add a movie</h2>
 
       <TextField
@@ -137,12 +153,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
             type="submit"
             data-cy="submit-button"
             className="button is-link"
-            disabled={
-              !title.trim() ||
-              !pattern.test(imgUrl) ||
-              !pattern.test(imdbUrl) ||
-              !imdbId.trim()
-            }
+            disabled={trueTest()}
           >
             Add
           </button>
